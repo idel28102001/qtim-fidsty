@@ -1,0 +1,3 @@
+export enum SubscribePostsTokensEnum {
+  SUBSCRIBE_POSTS_SERVICE_TOKEN = 'SUBSCRIBE_POSTS_SERVICE_TOKEN',
+}

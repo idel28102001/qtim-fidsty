@@ -1,0 +1,54 @@
+stages:
+  - lint
+  - check
+  - deploy
+
+cache:
+  key: $CI_COMMIT_REF_SLUG
+  paths:
+    - node_modules/
+
+lint:
+  stage: lint
+  image: node:16
+  script:
+    - npm i
+    - npm run lint
+  tags:
+    - docker
+  allow_failure: false
+
+build.check:
+  stage: check
+  image: node:16
+  script:
+    - npm i
+    - npm run build
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+prod.deploy:
+  stage: deploy
+  image: alpine:latest
+  variables:
+    GIT_SUBMODULE_STRATEGY: recursive
+    USER: '${DEV_SSH_DEPLOY_USER}'
+    SSH_PRIVATE_KEY: '{DEV_SSH_PRIVATE_KEY}'
+    HOST: 45.141.79.166
+    BRANCH: master
+  before_script:
+    - apk update && apk add openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | ssh-add -
+    - mkdir -p ~/.ssh
+    - '[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config'
+  script:
+    - ssh ${USER?}@${HOST?} "cd ${PROJECT_PATH?}; git pull origin ${BRANCH}:${BRANCH}"
+    - ssh ${USER?}@${HOST?} "cd ${PROJECT_PATH?}; docker-compose up -d --build"
+  tags:
+    - docker
+  only:
+    refs:
+      - master

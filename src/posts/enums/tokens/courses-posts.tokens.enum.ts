@@ -1,0 +1,3 @@
+export enum CoursesPostsTokensEnum {
+  COURSES_POSTS_SERVICE_TOKEN = 'COURSES_POSTS_SERVICE_TOKEN',
+}

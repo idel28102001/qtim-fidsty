@@ -1,0 +1,3 @@
+export enum AllKindPostsTokensEnum {
+  ALLKINDPOSTS_SERVICE_TOKEN = 'ALLKINDPOSTS_SERVICE_TOKEN',
+}
